@@ -3,7 +3,7 @@
  * This file contains the post-type class.
  *
  * This class handles the creation of the "faq" post type, and creates a
- * UI to display the staff-specific data on the admin screens.
+ * UI to display the item-specific data on the admin screens.
  */
 class Arconix_FAQ {
 
@@ -19,29 +19,30 @@ class Arconix_FAQ {
      */
     function __construct() {
 
-        // Post Type Creation
+        /** Post Type Creation */
         add_action( 'init', array( $this, 'create_post_type' ) );
         add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
-        // Modify the Post Type Admin screen
+        /** Modify the Post Type Admin screen */
         add_action( 'admin_head', array( $this, 'post_type_admin_image' ) );
         add_filter( 'manage_edit-faq_columns', array( $this, 'columns_filter' ) );
         add_action( 'manage_posts_custom_column', array( $this, 'column_data' ) );
 
-        // Register and add the javascript and CSS
+        /** Register and add the javascript and CSS */
 	add_action( 'init', array( $this , 'register_script' ) );
 	add_action( 'wp_footer', array( $this , 'print_script' ) );
 	add_action( 'wp_enqueue_scripts', array( $this , 'enqueue_css' ) );
 
-       // Create the shortcode
+        /** Create the shortcode */
         add_shortcode( 'faq', array( $this, 'faq_shortcode' ) );
 
-        // Modify Dashboard widgets
+        /** Modify Dashboard widgets */
         add_action( 'right_now_content_table_end', array( $this, 'right_now' ) );
+	add_action( 'wp_dashboard_setup', array( $this, 'register_dashboard_widget' ) );
 
     }
 
-    /**
+    /** 
      * Create FAQ Post Type
      */
     function create_post_type() {
@@ -66,7 +67,7 @@ class Arconix_FAQ {
                     'query_var' => true,
                     'menu_position' => 20,
                     'menu_icon' => ACF_URL . 'images/faq-16x16.png',
-                    'has_archive' => false,
+                    'has_archive' => true,
                     'supports' => array( 'title', 'editor', 'revisions' ),
                     'rewrite' => array( 'slug' => 'faqs', 'with_front' => false )
             )
@@ -75,6 +76,7 @@ class Arconix_FAQ {
         register_post_type( 'faq', $args );
 
     }
+    
 
     /** Modify updated messages on post type save */
     function updated_messages( $messages ) {
@@ -107,8 +109,8 @@ class Arconix_FAQ {
     function post_type_admin_image() {
         printf( '<style type="text/css" media="screen">.icon32-posts-faq { background: transparent url(%s) no-repeat !important; }</style>', ACF_URL . 'images/faq-32x32.png' );
     }
-    
-    
+
+
     /**
      * Choose the specific columns we want to display
      *
@@ -149,13 +151,13 @@ class Arconix_FAQ {
 
         }
     }
-    
-    
+
+
     /**
      *  Register the javascript
      */
     function register_script() {
-        
+
         if( file_exists( get_stylesheet_directory() . "/arconix-faq.js" ) ) {
 	    wp_register_script( 'arconix-faq-js', get_stylesheet_directory_uri() . '/arconix-faq.js', array( 'jquery' ), ACF_VERSION, true );
 	}
@@ -166,27 +168,27 @@ class Arconix_FAQ {
             wp_register_script( 'arconix-faq-js', ACF_URL . 'includes/faq.js', array( 'jquery' ), ACF_VERSION, true );
 	}
     }
-    
-    
+
+
     /**
      * Load the javascript on a page where the FAQ shortcode is used
-     * @return type 
+     * @return type
      */
     function print_script() {
-        
-        if( ! self::$load_js ) 
+
+        if( ! self::$load_js )
             return;
 
 	wp_print_scripts( 'arconix-faq-js' );
-       
+
     }
-    
-    
+
+
     /**
-     * Load the plugin's stylesheet 
+     * Load the plugin's stylesheet
      */
     function enqueue_css() {
-        
+
         if( file_exists( get_stylesheet_directory() . "/arconix-faq.css" ) ) {
 	    wp_enqueue_style( 'arconix-faq', get_stylesheet_directory_uri() . '/arconix-faq.css', array(), ACF_VERSION );
 	}
@@ -196,7 +198,7 @@ class Arconix_FAQ {
 	else {
             wp_enqueue_style( 'arconix-faq', ACF_URL . 'includes/faq.css', array(), ACF_VERSION );
 	}
-        
+
     }
 
 
@@ -205,34 +207,40 @@ class Arconix_FAQ {
      *
      * @param type $atts
      * @param type $content
+     * @since 0.9
+     * @version 1.0.3
      */
-    function faq_shortcode( $atts, $content = null ) {
-        
+    function faq_shortcode( $atts ) {
+
         // Set the js flag
         self::$load_js = true;
 
 	$defaults = apply_filters( 'arconix_faq_shortcode_query_args',
 	    array(
 		'post_type' => 'faq',
+                'showposts' => 'all',
 		'order' => 'ASC',
 		'orderby' => 'title'
 	    )
 	);
 
 	extract( shortcode_atts( $defaults, $atts ) );
+        
+        /** Translate 'all' to -1 for query terms */
+        if( $showposts == "all" ) $showposts = "-1";
 
-        /** create a new query bsaed on our own arguments */
-	$faq_query = new WP_Query( array( 'post_type' => $post_type, 'order' => $order, 'orderby' => $orderby ) );
+        /** Create a new query bsaed on our own arguments */
+	$faq_query = new WP_Query( array( 'post_type' => $post_type, 'order' => $order, 'orderby' => $orderby, 'posts_per_page' => $showposts ) );
 
         if( $faq_query->have_posts() ) : while ( $faq_query->have_posts() ) : $faq_query->the_post();
 
-            echo '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
-            echo '<div class="arconix-faq-title">' . get_the_title() . '</div>';
-            echo '<div class="arconix-faq-content">';
-            the_content();
-            echo '</div></div>';
+            //echo '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap ' . implode( ' ', get_post_class() ) .'">';
+	    echo '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
+	    echo '<div class="arconix-faq-title">' . get_the_title() . '</div>';
+            echo '<div class="arconix-faq-content">' . get_the_content() . '</div>';
+            echo '</div>';
 
-        endwhile; endif;
+        endwhile; endif; wp_reset_postdata();
     }
 
 
@@ -243,6 +251,48 @@ class Arconix_FAQ {
      */
     function right_now() {
         include_once( dirname( __FILE__ ) . '/views/right-now.php' );
+    }
+    
+    /**
+     * Adds a widget to the dashboard.
+     *
+     * @since 1.0.3
+     */
+    function register_dashboard_widget() {
+        wp_add_dashboard_widget( 'ac-faq', 'Arconix FAQ', array( $this, 'dashboard_widget_output' ) );
+    }
+
+
+    /**
+     * Add a widget to the dashboard
+     */
+    function dashboard_widget_output() {
+
+	echo '<div class="rss-widget">';
+
+        wp_widget_rss_output( array(
+            'url' => 'http://arconixpc.com/tag/arconix-faq/feed', // feed url
+            'title' => 'Arconix FAQ', // feed title
+            'items' => 3, // how many posts to show
+            'show_summary' => 1, // display excerpt
+            'show_author' => 0, // display author
+            'show_date' => 1 // display post date
+        ));
+
+        echo '<div class="acf-widget-bottom"><ul>'; ?>
+            <li><img src="<?php echo ACF_URL . 'images/page-16x16.png'?>"><a href="http://arcnx.co/afwiki">Wiki Page</a></li>
+            <li><img src="<?php echo ACF_URL . 'images/help-16x16.png'?>"><a href="http://arcnx.co/afhelp">Support Forum</a></li>
+        <?php echo '</ul></div>';
+        echo '</div>';
+
+        // handle the styling
+        echo '<style type="text/css">
+            #ac-faq .rsssummary { display: block; }
+            #ac-faq .acf-widget-bottom { border-top: 1px solid #ddd; padding-top: 10px; text-align: center; }
+            #ac-faq .acf-widget-bottom ul { list-style: none; }
+            #ac-faq .acf-widget-bottom ul li { display: inline; padding-right: 9%; }
+            #ac-faq .acf-widget-bottom img { padding-right: 3px; vertical-align: top; }
+        </style>';
     }
 
 
