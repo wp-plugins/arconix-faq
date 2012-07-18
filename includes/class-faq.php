@@ -42,7 +42,7 @@ class Arconix_FAQ {
 
     }
 
-    /** 
+    /**
      * Create FAQ Post Type
      */
     function create_post_type() {
@@ -76,7 +76,7 @@ class Arconix_FAQ {
         register_post_type( 'faq', $args );
 
     }
-    
+
 
     /** Modify updated messages on post type save */
     function updated_messages( $messages ) {
@@ -225,22 +225,29 @@ class Arconix_FAQ {
 	);
 
 	extract( shortcode_atts( $defaults, $atts ) );
-        
+
         /** Translate 'all' to -1 for query terms */
         if( $showposts == "all" ) $showposts = "-1";
 
+	$return = '';
+
         /** Create a new query bsaed on our own arguments */
-	$faq_query = new WP_Query( array( 'post_type' => $post_type, 'order' => $order, 'orderby' => $orderby, 'posts_per_page' => $showposts ) );
+	$faq_query = new WP_Query( array(
+	    'post_type' => $post_type,
+	    'order' => $order,
+	    'orderby' => $orderby,
+	    'posts_per_page' => $showposts
+	    ) );
 
         if( $faq_query->have_posts() ) : while ( $faq_query->have_posts() ) : $faq_query->the_post();
-
-            //echo '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap ' . implode( ' ', get_post_class() ) .'">';
-	    echo '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
-	    echo '<div class="arconix-faq-title">' . get_the_title() . '</div>';
-            echo '<div class="arconix-faq-content">' . get_the_content() . '</div>';
-            echo '</div>';
+	    $return = '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
+	    $return .= '<div class="arconix-faq-title">' . get_the_title() . '</div>';
+            $return .= '<div class="arconix-faq-content">' . get_the_content() . '</div>';
+            $return .= '</div>';
 
         endwhile; endif; wp_reset_postdata();
+
+	return $return;
     }
 
 
@@ -252,7 +259,7 @@ class Arconix_FAQ {
     function right_now() {
         include_once( dirname( __FILE__ ) . '/views/right-now.php' );
     }
-    
+
     /**
      * Adds a widget to the dashboard.
      *

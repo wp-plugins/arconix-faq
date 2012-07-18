@@ -2,8 +2,8 @@
 Contributors: jgardner03
 Tags: arconix, faq, toggle
 Requires at least: 3.1
-Tested up to: 3.3.1
-Stable tag: 1.0.3
+Tested up to: 3.4.1
+Stable tag: 1.0.4
 
 Arconix FAQ provides an easy way to add FAQ items to your website.
 
@@ -28,6 +28,9 @@ Upgrade normally via your Wordpress admin -> Plugins panel.
 
 == Frequently Asked Questions ==
 
+= Quick and dirty - how do I display my FAQ's? =
+* use the `[faq]` shortcode in a widget or on a post/page.
+
 = Where can I find more information on how to use the plugin?  =
 
 * Visit the plugin's [Wiki Page](http://arcnx.co/afwiki "Arconix FAQ Wiki") for documentation
@@ -46,6 +49,13 @@ I can certainly look into it. Contact me through [Twitter](http://arcnx.co/twitt
 2. Post Type Admin display
 
 == Changelog ==
+
+= 1.0.4 - 2012.07.17 =
+* fixed a display bug which caused all faq's to be loaded before any content
+
+= 1.0.3 - 2012.04.25 =
+* Show all FAQs and no longer paginate (overridable in the shortcode)
+* fix broken dasboard widget
 
 = 1.0.2 =
 * version bump to add readme.txt and screenshots
