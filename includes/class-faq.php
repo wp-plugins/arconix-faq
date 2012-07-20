@@ -240,7 +240,7 @@ class Arconix_FAQ {
 	    ) );
 
         if( $faq_query->have_posts() ) : while ( $faq_query->have_posts() ) : $faq_query->the_post();
-	    $return = '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
+	    $return .= '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
 	    $return .= '<div class="arconix-faq-title">' . get_the_title() . '</div>';
             $return .= '<div class="arconix-faq-content">' . get_the_content() . '</div>';
             $return .= '</div>';

@@ -49,6 +49,8 @@ I can certainly look into it. Contact me through [Twitter](http://arcnx.co/twitt
 2. Post Type Admin display
 
 == Changelog ==
+= 1.0.5 - 2012.07.20 =
+* fixed a critical bug in the shortcode
 
 = 1.0.4 - 2012.07.17 =
 * fixed a display bug which caused all faq's to be loaded before any content
