@@ -3,7 +3,7 @@ Contributors: jgardner03
 Tags: arconix, faq, toggle
 Requires at least: 3.1
 Tested up to: 3.4.1
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 
 Arconix FAQ provides an easy way to add FAQ items to your website.
 
