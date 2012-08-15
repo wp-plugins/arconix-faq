@@ -46,3 +46,21 @@ if( $num_posts->pending > 0 ) {
     echo '<td class="t '. $ac_pt . '">' . $text . '</td>';
     echo '</tr>';
 }
+
+$faq_args = array( 'name' => 'group' );
+
+$taxonomies = get_taxonomies( $faq_args , $output , $operator );
+
+    foreach( $taxonomies as $taxonomy ) {
+        $num_terms  = wp_count_terms( $taxonomy->name );
+        $num = number_format_i18n( $num_terms );
+        $text = _n( $taxonomy->labels->singular_name, $taxonomy->labels->name , intval( $num_terms ) );
+        if ( current_user_can( 'manage_categories' ) ) {
+
+            $num = "<a href='edit-tags.php?taxonomy=$taxonomy->name'>$num</a>";
+            $text = "<a href='edit-tags.php?taxonomy=$taxonomy->name'>$text</a>";
+
+        }
+        echo '<tr><td class="first b b-' . $taxonomy->name . '">' . $num . '</td>';
+        echo '<td class="t ' . $taxonomy->name . '">' . $text . '</td></tr>';
+    }

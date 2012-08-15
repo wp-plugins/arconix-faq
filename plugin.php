@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: Arconix FAQ
- * Plugin URI: http://arconixpc.com
+ * Plugin URI: http://arconixpc.com/plugins/arconix-faq
  * Description: Plugin to handle the display of FAQs
  *
- * Version: 1.0.5
+ * Version: 1.1
  *
  * Author: John Gardner
  * Author URI: http://arconixpc.com/
@@ -19,13 +19,15 @@ register_activation_hook( __FILE__, 'arconix_faq_activation' );
  * and creates it otherwise.
  *
  * @since 1.0
+ * @version 1.1
  */
 function arconix_faq_activation() {
 
     if ( ! post_type_exists( 'faq' ) ) {
         arconix_faq_setup();
         global $_arconix_faq;
-        $_arconix_faq -> create_post_type();
+        $_arconix_faq->create_post_type();
+        $_arconix_faq->create_taxonomy();
     }
     flush_rewrite_rules();
 
@@ -43,7 +45,7 @@ function arconix_faq_setup() {
     global $_arconix_faq;
 
     define( 'ACF_URL', plugin_dir_url( __FILE__ ) );
-    define( 'ACF_VERSION', '1.0.5');
+    define( 'ACF_VERSION', '1.1');
 
     /** Includes */
     require_once( dirname( __FILE__ ) . '/includes/class-faq.php' );

@@ -3,18 +3,18 @@ Contributors: jgardner03
 Tags: arconix, faq, toggle
 Requires at least: 3.1
 Tested up to: 3.4.1
-Stable tag: 1.0.5
+Stable tag: 1.1
 
 Arconix FAQ provides an easy way to add FAQ items to your website.
 
 == Description ==
 
-Utilizing Custom Post Types, this plugin the user to easily add FAQ items to their website. Display them using the supplied shortcode activated by a jQuery toggle box or the post-type archive.
+Utilizing Custom Post Types, this plugin the user to easily add FAQ items to their website. Display them using the supplied shortcode and show/hide them via a jQuery toggle box. The FAQ's can be displayed in groups by tagging them during the FAQ item's creation.
 
 = Features =
 * Custom Post-Type driven
 * jQuery toggle when using the shortcode
-* Can be extended and customized by advanced users by creating an archive-faq.php template
+* Can be displayed in groups by using the "group" taxonomy
 
 == Installation ==
 
@@ -47,8 +47,14 @@ I can certainly look into it. Contact me through [Twitter](http://arcnx.co/twitt
 == Screenshots ==
 1. Post Type in WordPress navigation list
 2. Post Type Admin display
+3. Grouping and Toggling display
 
 == Changelog ==
+= 1.1 - 2012.08.14 =
+* Added a "group" taxonomy for displaying the FAQ items in groups
+* Updated the CSS with more inline documentation
+* fixed a couple minor bugs
+
 = 1.0.5 - 2012.07.20 =
 * fixed a critical bug in the shortcode
 
@@ -57,7 +63,7 @@ I can certainly look into it. Contact me through [Twitter](http://arcnx.co/twitt
 
 = 1.0.3 - 2012.04.25 =
 * Show all FAQs and no longer paginate (overridable in the shortcode)
-* fix broken dasboard widget
+* fix broken dashboard widget
 
 = 1.0.2 =
 * version bump to add readme.txt and screenshots

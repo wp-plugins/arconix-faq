@@ -8,20 +8,14 @@
 class Arconix_FAQ {
 
     /**
-     * This var is used in the shortcode to flag the loading of javascript
-     * @var type boolean
-     */
-    static $load_js;
-
-
-    /**
      * Construct Method.
      */
     function __construct() {
 
-        /** Post Type Creation */
+        /** Post Type and Taxonomy Creation */
         add_action( 'init', array( $this, 'create_post_type' ) );
         add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
+        add_action( 'init', array( $this, 'create_taxonomy' ) );
 
         /** Modify the Post Type Admin screen */
         add_action( 'admin_head', array( $this, 'post_type_admin_image' ) );
@@ -41,6 +35,12 @@ class Arconix_FAQ {
 	add_action( 'wp_dashboard_setup', array( $this, 'register_dashboard_widget' ) );
 
     }
+    
+    /**
+     * This var is used in the shortcode to flag the loading of javascript
+     * @var type boolean
+     */
+    static $load_js;
 
     /**
      * Create FAQ Post Type
@@ -74,6 +74,45 @@ class Arconix_FAQ {
         );
 
         register_post_type( 'faq', $args );
+
+    }
+    
+    /**
+     * Create the Custom Taxonomy
+     *
+     * @since 1.1
+     */
+    function create_taxonomy() {
+
+	$args = apply_filters( 'arconix_faq_taxonomy_args',
+	    array(
+		'labels' => array(
+		    'name' => __( 'Groups', 'acf' ),
+		    'singular_name' => __( 'Group', 'acf' ),
+		    'search_items' =>  __( 'Search Groups', 'acf' ),
+		    'popular_items' => __( 'Popular Groups', 'acf' ),
+		    'all_items' => __( 'All Groups', 'acf' ),
+		    'parent_item' => null,
+		    'parent_item_colon' => null,
+		    'edit_item' => __( 'Edit Group' , 'acf' ),
+		    'update_item' => __( 'Update Group', 'acf' ),
+		    'add_new_item' => __( 'Add New Group', 'acf' ),
+		    'new_item_name' => __( 'New Group Name', 'acf' ),
+		    'separate_items_with_commas' => __( 'Separate groups with commas', 'acf' ),
+		    'add_or_remove_items' => __( 'Add or remove groups', 'acf' ),
+		    'choose_from_most_used' => __( 'Choose from the most used groups', 'acf' ),
+		    'menu_name' => __( 'Groups', 'acf' ),
+		),
+		'hierarchical' => false,
+		'show_ui' => true,
+		'update_count_callback' => '_update_post_term_count',
+		'query_var' => true,
+		'rewrite' => array( 'slug' => 'group' )
+	    )
+	);
+
+
+	register_taxonomy( 'group', 'faq', $args );
 
     }
 
@@ -124,6 +163,7 @@ class Arconix_FAQ {
             "cb" => "<input type=\"checkbox\" />",
             "title" => "FAQ Title",
             "faq_content" => "Details",
+            'faq_groups' => __( 'Groups', 'acf' ),
             "date" => "Date"
         );
 
@@ -145,6 +185,9 @@ class Arconix_FAQ {
         switch( $column ) {
             case "faq_content":
                 the_excerpt();
+                break;
+            case "faq_groups":
+                echo get_the_term_list( $post->ID, 'group', '', ', ', '' );
                 break;
             default:
                 break;
@@ -208,7 +251,7 @@ class Arconix_FAQ {
      * @param type $atts
      * @param type $content
      * @since 0.9
-     * @version 1.0.3
+     * @version 1.1
      */
     function faq_shortcode( $atts ) {
 
@@ -217,7 +260,6 @@ class Arconix_FAQ {
 
 	$defaults = apply_filters( 'arconix_faq_shortcode_query_args',
 	    array(
-		'post_type' => 'faq',
                 'showposts' => 'all',
 		'order' => 'ASC',
 		'orderby' => 'title'
@@ -231,21 +273,72 @@ class Arconix_FAQ {
 
 	$return = '';
 
-        /** Create a new query bsaed on our own arguments */
-	$faq_query = new WP_Query( array(
-	    'post_type' => $post_type,
-	    'order' => $order,
-	    'orderby' => $orderby,
-	    'posts_per_page' => $showposts
-	    ) );
+        $terms = get_terms( 'group' );
 
-        if( $faq_query->have_posts() ) : while ( $faq_query->have_posts() ) : $faq_query->the_post();
-	    $return .= '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
-	    $return .= '<div class="arconix-faq-title">' . get_the_title() . '</div>';
-            $return .= '<div class="arconix-faq-content">' . get_the_content() . '</div>';
-            $return .= '</div>';
+        if( $terms ) {
+            
+            foreach( $terms as $term ) {               
 
-        endwhile; endif; wp_reset_postdata();
+                /** Build my query showing only faq's from the taxonomy term we're looping through */
+                $faq_query = new WP_Query( array(
+                    'post_type' => 'faq',
+                    'order' => $order,
+                    'orderby' => $orderby,
+                    'posts_per_page' => $showposts,
+                    'tax_query' => array(
+                        array(
+                            'taxonomy' => 'group',
+                            'field' => 'slug',
+                            'terms' => array( $term->slug ), 
+                            'operator' => 'IN'
+                        )
+                    ) 
+                ) );                
+                
+                
+                if ( $faq_query->have_posts() ) {
+                    
+                    $return .= '<h3 class="arconix-faq-term-title">' . $term->name . '</h3>';
+                    
+                    /** If the term has a description, show it */
+                    if( $term->description )
+                        $return .= '<p class="arconix-faq-term-description">' . $term->description . '</p>';
+                    
+                    /** Loop through the rest of the posts for the term */
+                    while ( $faq_query->have_posts() ) : $faq_query->the_post();
+                    
+                        $return .= '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
+                        $return .= '<div class="arconix-faq-title">' . get_the_title() . '</div>';
+                        $return .= '<div class="arconix-faq-content">' . apply_filters( 'the_content', get_the_content() ) . '</div>';
+                        $return .= '</div>';
+                    
+                    endwhile;
+                }             
+                 wp_reset_postdata();
+            
+            }
+        }
+        else {
+            
+            $faq_query = new WP_Query( array(
+                'post_type' => 'faq',
+                'order' => $order,
+                'orderby' => $orderby,
+                'posts_per_page' => $showposts
+            ) );
+            
+            if ( $faq_query->have_posts() ) : while ( $faq_query->have_posts() ) : $faq_query->the_post();
+            
+                $return .= '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
+                $return .= '<div class="arconix-faq-title">' . get_the_title() . '</div>';
+                $return .= '<div class="arconix-faq-content">' . apply_filters( 'the_content', get_the_content() ) . '</div>';
+                $return .= '</div>';
+
+            
+            endwhile; endif; wp_reset_postdata();
+
+        }
+
 
 	return $return;
     }
@@ -264,6 +357,7 @@ class Arconix_FAQ {
      * Adds a widget to the dashboard.
      *
      * @since 1.0.3
+     * @version 1.1
      */
     function register_dashboard_widget() {
         wp_add_dashboard_widget( 'ac-faq', 'Arconix FAQ', array( $this, 'dashboard_widget_output' ) );
@@ -272,6 +366,9 @@ class Arconix_FAQ {
 
     /**
      * Add a widget to the dashboard
+     * 
+     * @since 1.0
+     * @version 1.1
      */
     function dashboard_widget_output() {
 
@@ -287,8 +384,9 @@ class Arconix_FAQ {
         ));
 
         echo '<div class="acf-widget-bottom"><ul>'; ?>
-            <li><img src="<?php echo ACF_URL . 'images/page-16x16.png'?>"><a href="http://arcnx.co/afwiki">Wiki Page</a></li>
-            <li><img src="<?php echo ACF_URL . 'images/help-16x16.png'?>"><a href="http://arcnx.co/afhelp">Support Forum</a></li>
+            <li><a href="http://arcnx.co/afwiki"><img src="<?php echo ACF_URL . 'images/page-16x16.png'?>">Wiki Page</a></li>
+            <li><a href="http://arcnx.co/afhelp"><img src="<?php echo ACF_URL . 'images/help-16x16.png'?>">Support Forum</a></li>
+            <li><a href="http://arcnx.co/aftrello"><img src="<?php echo ACF_URL . 'images/trello-16x16.png'?>">Dev Board</a></li>
         <?php echo '</ul></div>';
         echo '</div>';
 

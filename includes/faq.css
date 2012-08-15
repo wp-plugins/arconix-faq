@@ -1,4 +1,21 @@
-/* Toggle Styling
+/**
+ * Arconix FAQ Stylesheet
+ *
+ * The best way to modify this stylesheet is to copy this stylesheet to the root of your
+ * theme's folder and rename it to 'arconix-faq.css'. The plugin will load that sheet in
+ * place of this, allowing easy changes which won't be overwritten durign a plugin upgrade
+ */
+ 
+ 
+/* Term Title
+------------------------------------------------------------ */
+ h3.arconix-faq-term-title {}
+  
+/* Term Description
+------------------------------------------------------------ */ 
+p.arconix-faq-term-description { font-style: italic; }
+
+/* FAQ Wrapper
 ------------------------------------------------------------ */
 .arconix-faq-wrap {
     border-radius: 5px;
@@ -10,6 +27,9 @@
     margin: 10px 0;
     padding: 5px 10px;
 }
+
+/* FAQ Title
+------------------------------------------------------------ */
 .arconix-faq-title {
     background: url("../images/toggle-open.png") no-repeat left transparent;
     cursor: pointer;
@@ -20,12 +40,13 @@
 
 .arconix-faq-title.active { background: url("../images/toggle-close.png") no-repeat left transparent; }
 
+/* FAQ Content
+------------------------------------------------------------ */
 .arconix-faq-content {
     margin-left: 10px;
     padding: 5px 20px;
 }
 
-/* Override the theme's likely default values */
 .arconix-faq-content p {
     margin: 0 0 10px 0 !important;
     padding: 0 !important;
