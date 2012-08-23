@@ -3,7 +3,7 @@ Contributors: jgardner03
 Tags: arconix, faq, toggle
 Requires at least: 3.1
 Tested up to: 3.4.1
-Stable tag: 1.1
+Stable tag: 1.1.1
 
 Arconix FAQ provides an easy way to add FAQ items to your website.
 
@@ -50,6 +50,9 @@ I can certainly look into it. Contact me through [Twitter](http://arcnx.co/twitt
 3. Grouping and Toggling display
 
 == Changelog ==
+= 1.1.1 - 2012.08.22 =
+* minor update to allow the user to specify a FAQ group they'd like to display
+
 = 1.1 - 2012.08.14 =
 * Added a "group" taxonomy for displaying the FAQ items in groups
 * Updated the CSS with more inline documentation

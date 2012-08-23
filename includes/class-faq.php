@@ -249,9 +249,8 @@ class Arconix_FAQ {
      * Display FAQs
      *
      * @param type $atts
-     * @param type $content
      * @since 0.9
-     * @version 1.1
+     * @version 1.1.1
      */
     function faq_shortcode( $atts ) {
 
@@ -262,7 +261,8 @@ class Arconix_FAQ {
 	    array(
                 'showposts' => 'all',
 		'order' => 'ASC',
-		'orderby' => 'title'
+		'orderby' => 'title',
+                'group' => ''
 	    )
 	);
 
@@ -273,11 +273,18 @@ class Arconix_FAQ {
 
 	$return = '';
 
+        /** Get the taxonomy terms assigned to all FAQs */
         $terms = get_terms( 'group' );
 
+        /** If there are any terms being used, loop through each one to output the relevant FAQ's, else just output all FAQs */
         if( $terms ) {
             
-            foreach( $terms as $term ) {               
+            foreach( $terms as $term ) {
+                
+                /** If a user sets a specific group in the shortcode params, that's the only one we care about */
+                if( $group and $term->slug != $group ) {
+                    continue;
+                }
 
                 /** Build my query showing only faq's from the taxonomy term we're looping through */
                 $faq_query = new WP_Query( array(
@@ -298,7 +305,7 @@ class Arconix_FAQ {
                 
                 if ( $faq_query->have_posts() ) {
                     
-                    $return .= '<h3 class="arconix-faq-term-title">' . $term->name . '</h3>';
+                    $return .= '<h3 class="arconix-faq-term-title arconix-faq-term-' . $term->slug . '">' . $term->name . '</h3>';
                     
                     /** If the term has a description, show it */
                     if( $term->description )
@@ -313,32 +320,37 @@ class Arconix_FAQ {
                         $return .= '</div>';
                     
                     endwhile;
-                }             
+                }
                  wp_reset_postdata();
-            
             }
         }
+        /** If there are no faq groups */
         else {
-            
+
             $faq_query = new WP_Query( array(
                 'post_type' => 'faq',
                 'order' => $order,
                 'orderby' => $orderby,
                 'posts_per_page' => $showposts
             ) );
-            
-            if ( $faq_query->have_posts() ) : while ( $faq_query->have_posts() ) : $faq_query->the_post();
-            
+
+            if ( $faq_query->have_posts() ) {
+
+                /* Shhh! I'm not ready yet
+                 $return .= '<div class="arconix-faq-button">Expand/Collapse All</div>'; */
+
+                while ( $faq_query->have_posts() ) : $faq_query->the_post();
+
                 $return .= '<div id="post-' . get_the_ID() .'" class="arconix-faq-wrap">';
                 $return .= '<div class="arconix-faq-title">' . get_the_title() . '</div>';
                 $return .= '<div class="arconix-faq-content">' . apply_filters( 'the_content', get_the_content() ) . '</div>';
                 $return .= '</div>';
 
-            
-            endwhile; endif; wp_reset_postdata();
+                endwhile;
+            }
+            wp_reset_postdata();
 
         }
-
 
 	return $return;
     }

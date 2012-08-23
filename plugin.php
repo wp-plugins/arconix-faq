@@ -4,7 +4,7 @@
  * Plugin URI: http://arconixpc.com/plugins/arconix-faq
  * Description: Plugin to handle the display of FAQs
  *
- * Version: 1.1
+ * Version: 1.1.1
  *
  * Author: John Gardner
  * Author URI: http://arconixpc.com/
@@ -45,7 +45,7 @@ function arconix_faq_setup() {
     global $_arconix_faq;
 
     define( 'ACF_URL', plugin_dir_url( __FILE__ ) );
-    define( 'ACF_VERSION', '1.1');
+    define( 'ACF_VERSION', '1.1.1');
 
     /** Includes */
     require_once( dirname( __FILE__ ) . '/includes/class-faq.php' );
