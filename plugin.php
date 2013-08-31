@@ -4,7 +4,7 @@
  * Plugin URI: http://arconixpc.com/plugins/arconix-faq
  * Description: Plugin to handle the display of FAQs
  *
- * Version: 1.2.0
+ * Version: 1.3.0
  *
  * Author: John Gardner
  * Author URI: http://arconixpc.com/
@@ -48,7 +48,7 @@ class Arconix_FAQ {
      * @since 1.2.0
      */
     function constants() {
-        define( 'ACF_VERSION',          '1.2.0' );
+        define( 'ACF_VERSION',          '1.3.0' );
         define( 'ACF_URL',              trailingslashit( plugin_dir_url( __FILE__ ) ) );
         define( 'ACF_INCLUDES_URL',     trailingslashit( ACF_URL . 'includes' ) );
         define( 'ACF_IMAGES_URL',       trailingslashit( ACF_URL . 'images' ) );
@@ -147,7 +147,7 @@ class Arconix_FAQ {
                     'show_ui'                   => true,
                     'update_count_callback'     => '_update_post_term_count',
                     'query_var'                 => true,
-                    'rewrite'                   => array( 'slug' => 'group' )
+                    'rewrite'                   => array( 'with_front' => false )
                 )
             ),
             'query' => array(
@@ -172,7 +172,7 @@ class Arconix_FAQ {
     function metaboxes( $meta_boxes ) {
         $metabox = array(
             'id'            => 'faq-setting',
-            'title'         => __( 'FAQ Setting', 'act' ),
+            'title'         => __( 'FAQ Setting', 'acf' ),
             'pages'         => array( 'faq' ),
             'context'       => 'side',
             'priority'      => 'default',
@@ -180,8 +180,14 @@ class Arconix_FAQ {
             'fields'        => array(
                 array(
                     'id'    => '_acf_rtt',
-                    'name'  => 'Show Return to Top',
+                    'name'  => __( 'Show Return to Top', 'acf' ),
                     'desc'  => __( 'Enable a "Return to Top" link on this FAQ', 'acf' ),
+                    'type'  => 'checkbox'
+                ),
+                array(
+                    'id'    => '_acf_open',
+                    'name'  => __( 'Load FAQ Open', 'acf' ),
+                    'desc'  => __( 'Load this FAQ in the open state (default is closed)', 'acf' ),
                     'type'  => 'checkbox'
                 )
             )
@@ -235,14 +241,11 @@ class Arconix_FAQ {
 
         // Get the taxonomy terms assigned to all FAQs 
         $terms = get_terms( $default_args['taxonomy']['slug'] );
-        $count = 0;
 
         // If there are any terms being used, loop through each one to output the relevant FAQ's, else just output all FAQs 
         if( $terms ) {
 
             foreach( $terms as $term ) {
-                $count ++;
-                $return .= '<!-- count = ' . $count . ' and slug = '. $term->slug . ' -->';
 
                 // If a user sets a specific group in the params, that's the only one we care about 
                 $group = $args['group'];
@@ -281,13 +284,17 @@ class Arconix_FAQ {
 
                         // Grab our metadata
                         $rtt = get_post_meta( get_the_id(), '_acf_rtt', true );
+                        $lo = get_post_meta( get_the_id(), '_acf_open', true );
+
+                        // If Open on Load checkbox is true
+                        $lo == true ? $lo = ' faq-open' : $lo = ' faq-closed';
 
                         // Set up our anchor link
                         $link = 'faq-' . sanitize_title( get_the_title() );
 
                         $return .= '<div id="post-' . get_the_ID() . '" class="arconix-faq-wrap arconix-faq-group-' . $term->slug . '">';
-                        $return .= '<div class="arconix-faq-title"><a name="' . $link . '"></a>' . get_the_title() . '</div>';
-                        $return .= '<div class="arconix-faq-content">' . apply_filters( 'the_content', get_the_content() );
+                        $return .= '<div class="arconix-faq-title' . $lo . '"><a name="' . $link . '"></a>' . get_the_title() . '</div>';
+                        $return .= '<div class="arconix-faq-content' . $lo . '">' . apply_filters( 'the_content', get_the_content() );
 
                         // If Return to Top checkbox is true
                         if( $rtt ) {
@@ -327,13 +334,17 @@ class Arconix_FAQ {
 
                     // Grab our metadata
                     $rtt = get_post_meta( get_the_id(), '_acf_rtt', true );
+                    $lo = get_post_meta( get_the_id(), '_acf_open', true );
+
+                    // If Open on Load checkbox is true
+                    $lo == true ? $lo = ' faq-open' : $lo = ' faq-closed';
 
                     // Set up our anchor link
                     $link = 'faq-' . sanitize_title( get_the_title() );
 
                     $return .= '<div id="post-' . get_the_id() . '" class="arconix-faq-wrap arconix-faq-group-' . $term->slug . '">';
-                    $return .= '<div class="arconix-faq-title"><a name="' . $link . '"></a>' . get_the_title() . '</div>';
-                    $return .= '<div class="arconix-faq-content">' . apply_filters( 'the_content', get_the_content() );
+                    $return .= '<div class="arconix-faq-title' . $lo . '"><a name="' . $link . '"></a>' . get_the_title() . '</div>';
+                    $return .= '<div class="arconix-faq-content' . $lo . '">' . apply_filters( 'the_content', get_the_content() );
 
                     // If Return to Top checkbox is true
                     if( $rtt ) {
@@ -368,6 +379,8 @@ class Arconix_FAQ {
      * 
      * If you would like to bundle the Javacsript or CSS funtionality into another file and prevent either of the plugin's
      * JS or CSS from loading at all, return false to whichever of the pre_register filters you wish to override
+     *
+     * @example add_filter( 'pre_register_arconix_faq_js', '__return_false' );
      * 
      * If you'd like to use your own JS or CSS file, you can copy the arconix-faq.js or arconix-faq.css files to the 
      * root of your theme's folder. That will be loaded in place of the plugin's version, which means you can modify 
@@ -379,11 +392,11 @@ class Arconix_FAQ {
         // Register the javascript - Check the theme directory first, the parent theme (if applicable) second, otherwise load the plugin file
         if( apply_filters( 'pre_register_arconix_faq_js', true ) ) {
             if( file_exists( get_stylesheet_directory() . '/arconix-faq.js' ) )
-                wp_register_script( 'arconix-faq-js', get_stylesheet_directory_uri() . '/arconix-faq.js', array( 'jquery' ), ACF_VERSION, true );
+                wp_register_script( 'arconix-faq-js', get_stylesheet_directory_uri() . '/arconix-faq.js', array( 'jquery' ), ACF_VERSION );
             elseif( file_exists( get_template_directory() . '/arconix-faq.js' ) )
-                wp_register_script( 'arconix-faq-js', get_template_directory_uri() . '/arconix-faq.js', array( 'jquery' ), ACF_VERSION, true );
+                wp_register_script( 'arconix-faq-js', get_template_directory_uri() . '/arconix-faq.js', array( 'jquery' ), ACF_VERSION );
             else
-                wp_register_script( 'arconix-faq-js', ACF_INCLUDES_URL . 'arconix-faq.js', array( 'jquery' ), ACF_VERSION, true );
+                wp_register_script( 'arconix-faq-js', ACF_INCLUDES_URL . 'arconix-faq.js', array( 'jquery' ), ACF_VERSION );
         }
 
         // Load the CSS - Check the theme directory first, the parent theme (if applicable) second, otherwise load the plugin file
@@ -501,7 +514,7 @@ class Arconix_FAQ {
      * @version 1.2
      */
     function dashboard_widget() {
-        if( apply_filters( 'pre_register_arconix_faq_dashboard_widget', true ) )
+        if( apply_filters( 'pre_register_arconix_faq_dashboard_widget', true ) and current_user_can( 'manage_options' ) )
             wp_add_dashboard_widget( 'ac-faq', 'Arconix FAQ', array( $this, 'dashboard_widget_output' ) );
     }
 
