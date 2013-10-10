@@ -4,7 +4,7 @@
  * Plugin URI: http://arconixpc.com/plugins/arconix-faq
  * Description: Plugin to handle the display of FAQs
  *
- * Version: 1.3.0
+ * Version: 1.3.1
  *
  * Author: John Gardner
  * Author URI: http://arconixpc.com/
@@ -48,7 +48,7 @@ class Arconix_FAQ {
      * @since 1.2.0
      */
     function constants() {
-        define( 'ACF_VERSION',          '1.3.0' );
+        define( 'ACF_VERSION',          '1.3.1' );
         define( 'ACF_URL',              trailingslashit( plugin_dir_url( __FILE__ ) ) );
         define( 'ACF_INCLUDES_URL',     trailingslashit( ACF_URL . 'includes' ) );
         define( 'ACF_IMAGES_URL',       trailingslashit( ACF_URL . 'images' ) );
@@ -292,8 +292,8 @@ class Arconix_FAQ {
                         // Set up our anchor link
                         $link = 'faq-' . sanitize_title( get_the_title() );
 
-                        $return .= '<div id="post-' . get_the_ID() . '" class="arconix-faq-wrap arconix-faq-group-' . $term->slug . '">';
-                        $return .= '<div class="arconix-faq-title' . $lo . '"><a name="' . $link . '"></a>' . get_the_title() . '</div>';
+                        $return .= '<div id="faq-' . get_the_ID() . '" class="arconix-faq-wrap arconix-faq-group-' . $term->slug . '">';
+                        $return .= '<div id="' $link . '" class="arconix-faq-title' . $lo . '">' . get_the_title() . '</div>';
                         $return .= '<div class="arconix-faq-content' . $lo . '">' . apply_filters( 'the_content', get_the_content() );
 
                         // If Return to Top checkbox is true
@@ -342,8 +342,8 @@ class Arconix_FAQ {
                     // Set up our anchor link
                     $link = 'faq-' . sanitize_title( get_the_title() );
 
-                    $return .= '<div id="post-' . get_the_id() . '" class="arconix-faq-wrap arconix-faq-group-' . $term->slug . '">';
-                    $return .= '<div class="arconix-faq-title' . $lo . '"><a name="' . $link . '"></a>' . get_the_title() . '</div>';
+                    $return .= '<div id="faq-' . get_the_id() . '" class="arconix-faq-wrap arconix-faq-group-' . $term->slug . '">';
+                    $return .= '<div id="' $link . '" class="arconix-faq-title' . $lo . '">' . get_the_title() . '</div>';
                     $return .= '<div class="arconix-faq-content' . $lo . '">' . apply_filters( 'the_content', get_the_content() );
 
                     // If Return to Top checkbox is true
