@@ -35,7 +35,7 @@ class Arconix_FAQ_Admin {
      * @version 1.4.0
      */
     function constants() {
-        define( 'ACFAQ_VERSION',          '1.4.3' );
+        define( 'ACFAQ_VERSION',          '1.5.0' );
         define( 'ACFAQ_URL',              trailingslashit( plugin_dir_url( __FILE__ ) ) );
         define( 'ACFAQ_DIR',              trailingslashit( plugin_dir_path( __FILE__ ) ) );
     }
@@ -131,12 +131,6 @@ class Arconix_FAQ_Admin {
                     'query_var'                 => true,
                     'rewrite'                   => array( 'with_front' => false )
                 )
-            ),
-            'query' => array(
-                'order'             => 'ASC',
-                'orderby'           => 'title',
-                'posts_per_page'    => -1,
-                'group'             => '',
             )
         );
 
@@ -162,13 +156,13 @@ class Arconix_FAQ_Admin {
                 array(
                     'id'    => '_acf_rtt',
                     'name'  => __( 'Show Return to Top', 'acf' ),
-                    'desc'  => __( 'Enable a "Return to Top" link at the bottom of this FAQ', 'acf' ),
+                    'desc'  => __( 'Enable a "Return to Top" link at the bottom of this FAQ. The link will return the user to the top of this specific question', 'acf' ),
                     'type'  => 'checkbox'
                 ),
                 array(
                     'id'    => '_acf_open',
                     'name'  => __( 'Load FAQ Open', 'acf' ),
-                    'desc'  => __( 'Load this FAQ in the open state (default is closed)', 'acf' ),
+                    'desc'  => __( 'Load this FAQ in the open state (default is closed). This is not available when using the accordion configuration', 'acf' ),
                     'type'  => 'checkbox'
                 )
             )
@@ -236,16 +230,39 @@ class Arconix_FAQ_Admin {
      * it to your heart's content and know the file will be safe when the plugin is updated in the future.
      *
      * @since 1.2.0
+     * @version 1.5.0
      */
     function enq_scripts() {
         // Register the javascript - Check the theme directory first, the parent theme (if applicable) second, otherwise load the plugin file
-        if( apply_filters( 'pre_register_arconix_faq_js', true ) ) {
+        if ( apply_filters( 'pre_register_arconix_faq_js', true ) ) {
             if( file_exists( get_stylesheet_directory() . '/arconix-faq.js' ) )
-                wp_register_script( 'arconix-faq-js', get_stylesheet_directory_uri() . '/arconix-faq.js', array( 'jquery' ), ACFAQ_VERSION );
+                wp_register_script( 'arconix-faq-js', get_stylesheet_directory_uri() . '/arconix-faq.js', array( 'jquery-ui-accordion' ), ACFAQ_VERSION );
             elseif( file_exists( get_template_directory() . '/arconix-faq.js' ) )
-                wp_register_script( 'arconix-faq-js', get_template_directory_uri() . '/arconix-faq.js', array( 'jquery' ), ACFAQ_VERSION );
+                wp_register_script( 'arconix-faq-js', get_template_directory_uri() . '/arconix-faq.js', array( 'jquery-ui-accordion' ), ACFAQ_VERSION );
             else
-                wp_register_script( 'arconix-faq-js', ACFAQ_URL . 'js/arconix-faq.js', array( 'jquery' ), ACFAQ_VERSION );
+                wp_register_script( 'arconix-faq-js', ACFAQ_URL . 'js/arconix-faq.js', array( 'jquery-ui-accordion' ), ACFAQ_VERSION );
+        }
+
+        /**
+         * Load the CSS necessary for the accordion script
+         *
+         * If you plan on adding a filter to use a different jQuery UI theme, it's highly recommended
+         * you reference the $wp_scripts global as well as the $ui variable to make sure we load the CSS
+         * for the version of jQuery WordPress loads
+         */
+        if( apply_filters( 'pre_register_arconix_faq_jqui_css', true ) ) {
+            global $wp_scripts;
+
+            // get registered script object for jquery-ui
+            $ui = $wp_scripts->query( 'jquery-ui-core' );
+
+            $css_args = apply_filters( 'arconix_jqueryui_css_reg', array(
+                'url' => '//ajax.googleapis.com/ajax/libs/jqueryui/' . $ui->ver . '/themes/smoothness/jquery-ui.min.css',
+                'ver' => $ui->ver,
+                'dep' => false
+            ) );
+
+            wp_enqueue_style( 'jquery-ui-smoothness', $css_args['url'], $css_args['dep'], $css_args['ver'] );
         }
 
         // Load the CSS - Check the theme directory first, the parent theme (if applicable) second, otherwise load the plugin file
