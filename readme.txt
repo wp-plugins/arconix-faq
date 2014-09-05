@@ -3,7 +3,7 @@ Contributors: jgardner03
 Donate link: http://arcnx.co/acfdonation
 Tags: arconix, faq, toggle
 Requires at least: 3.8
-Tested up to: 3.9
+Tested up to: 4.0
 Stable tag: 1.5.1
 
 Arconix FAQ provides an easy way to add FAQ items to your website.
