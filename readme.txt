@@ -36,7 +36,7 @@ Upgrade normally via your WordPress admin -> Plugins panel.
 Use the `[faq]` shortcode in a widget or on a post/page.
 
 = How do I enable the accordion display mode? =
-add `style="accordion"` to the shortcode, e.g. `[faq style="accordion"]
+add `style="accordion"` to the shortcode, e.g. `[faq style="accordion"]`
 
 = Where can I find more information on how to use the plugin?  =
 * Visit the plugin's [Wiki Page](http://arcnx.co/afwiki) for documentation
@@ -48,7 +48,7 @@ While you can certainly start a thread in the [support forum](http://arcnx.co/af
 2. Check to make sure only one copy of jQuery is being loaded. Many times conflicts arise when themes or plugins load jQuery incorrectly, causing the script to be loaded multiple times in multiple versions. In order to find the offending item, start by disabling your plugins one by one until you find the problem. If you've disabled all your plugins, try switching to a different them, such as twentyten or twentytwelve to see if the problem is with your theme. Once you've found the problem, contact the developer for assistance getting the issue resolved.
 
 = I need help =
-Check out the WordPress [support forum](http://arcnx.co/aphelp)
+Check out the WordPress [support forum](http://arcnx.co/afhelp)
 
 = I have a great idea for your plugin! =
 That's fantastic! Feel free to submit a pull request over at [Github](http://arcnx.co/afsource), add an idea to the [Trello Board](http://arcnx.co/aftrello), or you can contact me through [Twitter](http://arcnx.co/twitter), [Facebook](http://arcnx.co/facebook) or my [Website](http://arcnx.co/1)
